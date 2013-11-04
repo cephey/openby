@@ -80,7 +80,7 @@ class RegisterView(TemplateView):
 
 class LoginView(TemplateView):
     """
-    login user
+    Аутентификация пользователя
     """
     template_name='login_form.html'
 
@@ -132,3 +132,26 @@ class LoginView(TemplateView):
             result['errors'] = form.errors
 
         return result
+
+
+class LogoutView(View):
+    """
+    Завершении сессии пользователя
+    """
+
+    def get(self, request, backend, *args, **kwargs):
+        backend = get_backend(backend)
+        backend.logout(request)
+
+        next_page = None
+        if REDIRECT_FIELD_NAME in request.REQUEST:
+            next_page = request.REQUEST[REDIRECT_FIELD_NAME]
+
+            # Проверка безопасного перенаправления
+            if not is_safe_url(url=next_page, host=request.get_host()):
+                next_page = request.path
+
+        if next_page:
+            return redirect(next_page)
+        else:
+            return redirect('/')

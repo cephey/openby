@@ -34,12 +34,12 @@ DATABASES = {
     }
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'andrey.ptitsyn86'
-EMAIL_HOST_PASSWORD = '610bmw610'
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = config.get(CONF, 'EMAIL_BACKEND')
+EMAIL_HOST = config.get(CONF, 'EMAIL_HOST')
+EMAIL_PORT = config.get(CONF, 'EMAIL_PORT')
+EMAIL_HOST_USER = config.get(CONF, 'EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config.get(CONF, 'EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = config.get(CONF, 'EMAIL_USE_TLS')
 
 ALLOWED_HOSTS = ['*']
 TIME_ZONE = 'Europe/Moscow'

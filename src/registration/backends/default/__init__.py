@@ -1,6 +1,6 @@
 #coding:utf-8
 
-from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
+from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login, logout as auth_logout
 from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
 
@@ -11,43 +11,9 @@ from registration.models import RegistrationProfile
 
 class DefaultBackend(object):
     """
-    A registration backend which follows a simple workflow:
-
-    1. User signs up, inactive account is created.
-
-    2. Email is sent to user with activation link.
-
-    3. User clicks activation link, account is now active.
-
-    Using this backend requires that
-
-    * ``registration`` be listed in the ``INSTALLED_APPS`` setting
-      (since this backend makes use of models defined in this
-      application).
-
-    * The setting ``ACCOUNT_ACTIVATION_DAYS`` be supplied, specifying
-      (as an integer) the number of days from registration during
-      which a user may activate their account (after that period
-      expires, activation will be disallowed).
-
-    * The creation of the templates
-      ``registration/activation_email_subject.txt`` and
-      ``registration/activation_email.txt``, which will be used for
-      the activation email. See the notes for this backends
-      ``register`` method for details regarding these templates.
-
-    Additionally, registration can be temporarily closed by adding the
-    setting ``REGISTRATION_OPEN`` and setting it to
-    ``False``. Omitting this setting, or setting it to ``True``, will
-    be interpreted as meaning that registration is currently open and
-    permitted.
-
-    Internally, this is accomplished via storing an activation key in
-    an instance of ``registration.models.RegistrationProfile``. See
-    that model and its custom manager for full documentation of its
-    fields and supported operations.
-    
+    Бэкенд для регистрации, активации и аутентификации пользователя    
     """
+
     def register(self, request, **kwargs):
         """
         Получаю username, email address and password и 
@@ -67,7 +33,7 @@ class DefaultBackend(object):
 
     def activate(self, request, activation_key):
         """
-        Получаю ключ активации, и активарую аккаунт пользователя, 
+        Получаю ключ активации, и активирую аккаунт пользователя, 
         которому он принадлежит
         """
 
@@ -83,6 +49,12 @@ class DefaultBackend(object):
         Получаю username and password и авторизую пользователя
         """
         auth_login(request, form.get_user())
+
+    def logout(self, request):
+        """
+        Завершение сессии пользователя
+        """
+        auth_logout(request)
 
     def get_register_form_class(self, request):
         """

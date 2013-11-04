@@ -21,7 +21,8 @@
                             </div>
                             {{ field.errors }}
                             {% endfor %}
-                            <input class="btn btn-lg btn-primary btn-block" type="submit" ng-click="submit('{% url 'auth_login' %}')" value="Войти">
+
+                            <input class="btn btn-lg btn-primary btn-block" type="submit" ng-click="submit('{{ request.get_full_path }}')" value="Войти">
                             <br />
                             <a href="{% url 'registration_register' %}" class="pull-right">Регистрация</a>
                         </fieldset>

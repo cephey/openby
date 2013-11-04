@@ -14,7 +14,7 @@ var App = angular.module('App', [], function ($interpolateProvider) {
 .controller('MainCtrl', ['$scope', function ($scope) {
 
 }])
-.controller('RegLoginCtrl', ['$scope', '$http', function ($scope, $http) {
+.controller('RegLoginCtrl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
 
     $scope.loading = false;
 

@@ -53,9 +53,9 @@
             <ul class="nav navbar-nav navbar-right">
               {% if user.is_authenticated %}
                 <li><a href="#"><span class="glyphicon glyphicon-user"></span> {{ user.username }}</a></li>
-                <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
+                <li><a href="{% url 'auth_logout' %}"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
               {% else %}
-                <li><a href="{% url 'auth_login' %}"><span class="glyphicon glyphicon-log-in"></span> Войти</a></li>
+                <li><a href="{% url 'auth_login' %}?next={{ request.path }}"><span class="glyphicon glyphicon-log-in"></span> Войти</a></li>
               {% endif %}
             </ul>
 

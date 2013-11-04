@@ -2,7 +2,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model, authenticate
-from django.core.exceptions import ObjectDoesNotExist
+# from django.core.exceptions import ObjectDoesNotExist
 
 from djangular.forms.angular_model import NgModelFormMixin
 
@@ -113,6 +113,7 @@ class AuthenticationForm(NgModelFormMixin, forms.Form):
 
     def get_user(self):
         return self.user_cache
+
 
 class RegistrationFormUniqueEmail(RegistrationForm):
     """

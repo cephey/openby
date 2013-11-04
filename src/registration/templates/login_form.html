@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Авторизация{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="panel panel-primary">
+
+                <div class="panel-heading">
+                    <h3 class="panel-title">Пожалуйста авторизуйтесь</h3>
+                </div>
+
+                <div class="panel-body">
+                    <form ng-controller="RegLoginCtrl" role="form" novalidate>{% csrf_token %}
+                        <fieldset>
+                            {% for field in form %}
+                            <div class="form-group" ng-form="{{ field.html_name }}">
+                                {{ field }}
+                            </div>
+                            {{ field.errors }}
+                            {% endfor %}
+                            <input class="btn btn-lg btn-primary btn-block" type="submit" ng-click="submit('{% url 'auth_login' %}')" value="Войти">
+                            <br />
+                            <a href="{% url 'registration_register' %}" class="pull-right">Регистрация</a>
+                        </fieldset>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

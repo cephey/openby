@@ -4,7 +4,7 @@ openby
 Инструкция по установке
 -----------------------
 
-Установка Redis::
+**Установка Redis**::
 
   sudo apt-get install redis-server
 
@@ -26,6 +26,6 @@ openby
 
   sudo service redis-server restart
 
-Установка виртуального окружения::
+**Установка виртуального окружения**::
 
   pip install -r requirements.txt

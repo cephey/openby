@@ -1,22 +1,18 @@
-"""
-Forms and validation code for user registration.
-
-"""
+#coding:utf-8
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ObjectDoesNotExist
 
+from djangular.forms.angular_model import NgModelFormMixin
+
+from registration.validators import validate_username, validate_email
+
 User = get_user_model()
-
-# I put this on all required fields, because it's easier to pick up
-# on them with CSS or JavaScript if they have a class of "required"
-# in the HTML. Your mileage may vary. If/when Django ticket #3515
-# lands in trunk, this will no longer be necessary.
-attrs_dict = {'class': 'required'}
+attrs_dict = {'class': 'form-control'}
 
 
-class RegistrationForm(forms.Form):
+class RegistrationForm(NgModelFormMixin, forms.Form):
     """
     Form for registering a new user account.
     
@@ -29,23 +25,25 @@ class RegistrationForm(forms.Form):
     registration backend.
     
     """
-    username = forms.RegexField(regex=r'^[\w.@+-]+$',
-                                max_length=30,
-                                widget=forms.TextInput(attrs=attrs_dict),
-                                label=_("Username"),
-                                error_messages={'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")})
-    email = forms.EmailField(widget=forms.TextInput(attrs=dict(attrs_dict,
-                                                               maxlength=75)),
-                             label=_("E-mail"))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
-                                label=_("Password"))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
-                                label=_("Password (again)"))
+    username = forms.CharField(
+        label=_("Username"), validators=[validate_username], max_length=30, 
+        widget=forms.TextInput(attrs=attrs_dict))
+
+    email = forms.CharField(
+        label=_("E-mail"), validators=[validate_email], 
+        widget=forms.TextInput(attrs=attrs_dict))
+
+    password1 = forms.CharField(
+        label=_("Password"),
+        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False))
+
+    password2 = forms.CharField(
+        label=_("Password (again)"),
+        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False))
     
     def clean_username(self):
         """
-        Validate that the username is alphanumeric and is not already
-        in use.        
+        Проверка что нет пользователя с аналогичным логином
         """
 
         existing = User.objects.filter(username__iexact=self.cleaned_data['username'])
@@ -53,85 +51,78 @@ class RegistrationForm(forms.Form):
             raise forms.ValidationError(_("A user with that username already exists."))
         else:
             return self.cleaned_data['username']
-    
-    def clean_email(self):
-        """        
-        Validates email address not already in use - one per please
-        """
-
-        email = self.cleaned_data['email']
-        try:
-            user = User.objects.get(email__iexact=email)
-            raise forms.ValidationError("A user with that email already exists.")
-        except ObjectDoesNotExist:
-            return self.cleaned_data['email']
-    
-            
 
     def clean(self):
         """
-        Verifiy that the values entered into the two password fields
-        match. Note that an error here will end up in
-        ``non_field_errors()`` because it doesn't apply to a single
-        field.
-        
+        Проверка правильности ввода пароля и подтверждения пароля        
         """
+
         if 'password1' in self.cleaned_data and 'password2' in self.cleaned_data:
             if self.cleaned_data['password1'] != self.cleaned_data['password2']:
                 raise forms.ValidationError(_("The two password fields didn't match."))
         return self.cleaned_data
 
 
-class RegistrationFormTermsOfService(RegistrationForm):
+class AuthenticationForm(NgModelFormMixin, forms.Form):
     """
-    Subclass of ``RegistrationForm`` which adds a required checkbox
-    for agreeing to a site's Terms of Service.
-    
+    Форма для аутентификации пользователя
     """
-    tos = forms.BooleanField(widget=forms.CheckboxInput(attrs=attrs_dict),
-                             label=_(u'I have read and agree to the Terms of Service'),
-                             error_messages={'required': _("You must agree to the terms to register")})
+    username = forms.CharField(
+        label=_("Username"), validators=[validate_username], max_length=30, 
+        widget=forms.TextInput(attrs=attrs_dict))
 
+    password = forms.CharField(
+        label=_("Password"),
+        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False))
+
+    def __init__(self, request=None, *args, **kwargs):
+        """
+        If request is passed in, the form will validate that cookies are
+        enabled. Note that the request (a HttpRequest object) must have set a
+        cookie with the key TEST_COOKIE_NAME and value TEST_COOKIE_VALUE before
+        running this validation.
+        """
+        self.request = request
+        self.user_cache = None
+        super(AuthenticationForm, self).__init__(*args, **kwargs)
+
+        self.username_field = User._meta.get_field(User.USERNAME_FIELD)
+
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            self.user_cache = authenticate(
+                username=username, password=password)
+
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    _('Please enter a correct %(username)s and password. '
+                        'Note that both fields may be case-sensitive.') % {
+                    'username': self.username_field.verbose_name
+                    })
+            elif not self.user_cache.is_active:
+                raise forms.ValidationError(_('This account is inactive.'))
+        self.check_for_test_cookie()
+        return self.cleaned_data
+
+    def check_for_test_cookie(self):
+        if self.request and not self.request.session.test_cookie_worked():
+            raise forms.ValidationError(self.error_messages['no_cookies'])
+
+    def get_user(self):
+        return self.user_cache
 
 class RegistrationFormUniqueEmail(RegistrationForm):
     """
-    Subclass of ``RegistrationForm`` which enforces uniqueness of
-    email addresses.
-    
+    Подкласс 'RegistrationForm', который следит за уникальностью E-mail    
     """
     def clean_email(self):
         """
-        Validate that the supplied email address is unique for the
-        site.
-        
+        Проверка уникальности поля E-mail        
         """
+
         if User.objects.filter(email__iexact=self.cleaned_data['email']):
             raise forms.ValidationError(_("This email address is already in use. Please supply a different email address."))
-        return self.cleaned_data['email']
-
-
-class RegistrationFormNoFreeEmail(RegistrationForm):
-    """
-    Subclass of ``RegistrationForm`` which disallows registration with
-    email addresses from popular free webmail services; moderately
-    useful for preventing automated spam registrations.
-    
-    To change the list of banned domains, subclass this form and
-    override the attribute ``bad_domains``.
-    
-    """
-    bad_domains = ['aim.com', 'aol.com', 'email.com', 'gmail.com',
-                   'googlemail.com', 'hotmail.com', 'hushmail.com',
-                   'msn.com', 'mail.ru', 'mailinator.com', 'live.com',
-                   'yahoo.com']
-    
-    def clean_email(self):
-        """
-        Check the supplied email address against a list of known free
-        webmail domains.
-        
-        """
-        email_domain = self.cleaned_data['email'].split('@')[1]
-        if email_domain in self.bad_domains:
-            raise forms.ValidationError(_("Registration using free email addresses is prohibited. Please supply a different email address."))
         return self.cleaned_data['email']

@@ -34,6 +34,13 @@ DATABASES = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'andrey.ptitsyn86'
+EMAIL_HOST_PASSWORD = '610bmw610'
+EMAIL_USE_TLS = True
+
 ALLOWED_HOSTS = ['*']
 TIME_ZONE = 'Europe/Moscow'
 LANGUAGE_CODE = 'ru'
@@ -68,15 +75,15 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware',
+    # 'django.middleware.cache.UpdateCacheMiddleware',
+
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 ROOT_URLCONF = 'conf.urls'
@@ -95,8 +102,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.request',
 
     'sekizai.context_processors.sekizai',
+    'context_processors.brand',
 )
 
 
@@ -112,6 +121,7 @@ INSTALLED_APPS = (
     'sekizai',
     'pages',
     'registration',
+    'djangular',
 )
 
 SESSION_ENGINE = 'redis_sessions.session'
@@ -127,6 +137,17 @@ CACHES = {
         },
     }
 }
+
+TCT = config.get(CONF, 'CUSTOM_TEMPLATE_CACHE_TIME')
+
+COMPANY_NAME = 'OPENBY'
+
+# редирект после авторизации в случае 
+# если секции 'next' в url нет
+LOGIN_REDIRECT_URL = '/profile/'
+# количество дней в течении которых 
+# можно активировать аккаунт
+ACCOUNT_ACTIVATION_DAYS = 2
 
 LOGGING = {
     'version': 1,

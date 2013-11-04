@@ -37,12 +37,18 @@ class DefaultBackend(object):
         которому он принадлежит
         """
 
-        activated = RegistrationProfile.objects.activate_user(activation_key)
-        if activated:
-            signals.user_activated.send(sender=self.__class__,
-                                        user=activated,
-                                        request=request)
-        return activated
+        activated_user = RegistrationProfile.objects.activate_user(activation_key)
+        if activated_user:
+            # логинем пользователя. так как перед login всегда надо
+            # делать authentication() который принимает логин и пароль
+            # (которого сейчас нет) делаю такую нехорошую штуку...
+            activated_user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, activated_user)
+
+            signals.user_activated.send(
+                sender=self.__class__, user=activated_user, request=request)
+
+        return activated_user
 
     def login(self, request, form):
         """

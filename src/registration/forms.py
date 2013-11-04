@@ -1,4 +1,5 @@
 #coding:utf-8
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model, authenticate
@@ -10,24 +11,16 @@ from registration.validators import validate_username, validate_email
 
 User = get_user_model()
 attrs_dict = {'class': 'form-control'}
+attrs_dict_focus = {'class': 'form-control', 'autofocus': ''}
 
 
 class RegistrationForm(NgModelFormMixin, forms.Form):
     """
-    Form for registering a new user account.
-    
-    Validates that the requested username is not already in use, and
-    requires the password to be entered twice to catch typos.
-    
-    Subclasses should feel free to add any additional validation they
-    need, but should avoid defining a ``save()`` method -- the actual
-    saving of collected user data is delegated to the active
-    registration backend.
-    
+    Форма регистрации нового пользователя    
     """
     username = forms.CharField(
         label=_("Username"), validators=[validate_username], max_length=30, 
-        widget=forms.TextInput(attrs=attrs_dict))
+        widget=forms.TextInput(attrs=attrs_dict_focus))
 
     email = forms.CharField(
         label=_("E-mail"), validators=[validate_email], 
@@ -69,7 +62,7 @@ class AuthenticationForm(NgModelFormMixin, forms.Form):
     """
     username = forms.CharField(
         label=_("Username"), validators=[validate_username], max_length=30, 
-        widget=forms.TextInput(attrs=attrs_dict))
+        widget=forms.TextInput(attrs=attrs_dict_focus))
 
     password = forms.CharField(
         label=_("Password"),

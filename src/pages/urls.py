@@ -9,4 +9,6 @@ from django.views.decorators.cache import cache_page
 
 urlpatterns = patterns('',
     url(r'^$', cache_page(settings.TCT * 60)(TemplateView.as_view(template_name='index.html')), name="index"),
+
+    url(r'^test/$', TemplateView.as_view(template_name='test.html'), name="test"),
 )

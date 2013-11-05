@@ -4,24 +4,24 @@
 
 {% block content %}
 <div class="container">
-    <div class="row">
+    <div class="row" ng-controller="RegLoginCtrl">
         <div class="col-md-4 col-md-offset-4">
-            <div class="panel panel-primary">
+            <div class="panel" ng-class="{'panel-primary': !loading, 'panel-default': loading}">
 
                 <div class="panel-heading">
-                    <h3 class="panel-title">Регистрация</h3>
+                    <h3 class="panel-title" ng-class="{disabled_title: loading}">Регистрация</h3>
                 </div>
 
                 <div class="panel-body">
-                    <form ng-controller="RegLoginCtrl" role="form" novalidate>{% csrf_token %}
-                        <fieldset>
+                    <form role="form" novalidate>{% csrf_token %}
+                        <fieldset ng-disabled="loading">
                             {% for field in form %}
                             <div class="form-group" ng-form="{{ field.html_name }}">
                                 {{ field }}
                             </div>
                             {{ field.errors }}
                             {% endfor %}
-                            <input class="btn btn-lg btn-primary btn-block" type="submit" ng-click="submit('{% url 'registration_register' %}')" value="Войти">
+                            <input class="btn btn-lg btn-block btn-primary" type="submit" ng-click="submit('{% url 'registration_register' %}')" value="Готово">
                         </fieldset>
                     </form>
                 </div>
@@ -30,4 +30,7 @@
         </div>
     </div>
 </div>
+<style>
+    .disabled_title { color: #bbb; }
+</style>
 {% endblock %}

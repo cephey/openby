@@ -16,18 +16,26 @@ var App = angular.module('App', [], function ($interpolateProvider) {
 }])
 .controller('RegLoginCtrl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
 
-    $scope.loading = false;
+    $scope.loading = false,
+
+    // начало ajax запроса
+    $scope.ajax_start = function () {
+        $scope.loading = true;
+    };
+    // конец ajax запроса
+    $scope.ajax_finish = function () {
+        $scope.loading = false;
+    };
 
     $scope.submit = function(url) {
 
         if (url) {
-
-            $scope.loading = true;
+            $scope.ajax_start();
 
             $http.post(url, $.param($scope.user))
             .success(
                 function(data, status, headers, config) {
-                    $scope.loading = false;
+                    $scope.ajax_finish();
                     if (data.success) {
                         if (data.next) {
                             window.location = data.next;
@@ -40,7 +48,7 @@ var App = angular.module('App', [], function ($interpolateProvider) {
                 })
             .error(
                 function(data, status, headers, config){
-                    $scope.loading = false;
+                    $scope.ajax_finish();
                 });
         }
     }

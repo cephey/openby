@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load sekizai_tags %}
+
+{% block title %}test{% endblock %}
+
+{% block content %}
+
+{% addtoblock "css" %}
+<link rel="stylesheet" href="/static/icheck/css/square/blue.css">
+{% endaddtoblock %}
+
+<div class="container">
+    <input type="checkbox">
+    <input type="checkbox" checked>
+    <input type="checkbox" disabled>
+    <input type="checkbox" checked disabled>
+
+    <input type="radio" name="lolo">
+    <input type="radio" name="lolo" checked>
+</div>
+
+{% addtoblock "js" %}
+<script src="/static/icheck/js/jquery.icheck.min.js"></script>
+<script>
+$(document).ready(function(){
+  $('input').iCheck({
+    checkboxClass: 'icheckbox_square-blue',
+    radioClass: 'iradio_square-blue'
+  });
+});
+</script>
+{% endaddtoblock %}
+
+{% endblock %}

@@ -5,7 +5,7 @@ from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
 
 from registration import signals
-from registration.forms import RegistrationFormUniqueEmail, AuthenticationForm
+from registration.forms import RegistrationFormUniqueEmail, AuthenticationForm, RegistrationForm
 from registration.models import RegistrationProfile
 
 
@@ -66,7 +66,8 @@ class DefaultBackend(object):
         """
         Возвращаю класс формы для регистрации пользователя
         """
-        return RegistrationFormUniqueEmail
+        # return RegistrationFormUniqueEmail
+        return RegistrationForm
 
     def get_login_form_class(self, request):
         """

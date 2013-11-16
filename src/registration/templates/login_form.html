@@ -1,11 +1,13 @@
 {% extends "base.html" %}
+{% load sekizai_tags %}
 
 {% block title %}Авторизация{% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="row" ng-controller="RegLoginCtrl">
-        <div class="col-md-4 col-md-offset-4">
+    <div class="row" ng-controller="LoginCtrl">
+
+        <div class="col-md-4 col-md-offset-4" ng-show="!message">
             <div class="panel" ng-class="{'panel-primary': !loading, 'panel-default': loading}">
 
                 <div class="panel-heading">
@@ -13,18 +15,32 @@
                 </div>
 
                 <div class="panel-body">
-                    <form role="form" novalidate>{% csrf_token %}
+                    <form name="login_form" role="form" novalidate ng-submit="submit('{% url 'auth_login' %}')">{% csrf_token %}
                         <fieldset ng-disabled="loading">
-                            {% for field in form %}
-                            <div class="form-group" ng-form="{{ field.html_name }}">
-                                {{ field }}
+
+                            <div class="form-group relative" ng-form="for_username">
+                                <input type="text" ng-model="user.username" name="username" class="form-control" autofocus required placeholder="Имя" />
+                                <ul class="field_error" ng-show="for_username.$dirty && for_username.$invalid">
+                                    <li ng-show="for_username.$error.required">Обязательное поле</li>
+                                </ul>
                             </div>
-                            {{ field.errors }}
-                            {% endfor %}
-                            <input class="btn btn-lg btn-primary btn-block" type="submit" ng-click="submit('{{ request.get_full_path }}')" value="Войти">
-                            <br />
-                            <a href="{% url 'registration_register' %}" ng-show="!loading" class="pull-right">Регистрация</a>
+
+                            <div class="form-group relative" ng-form="for_password">
+                                <input type="password" ng-model="user.password" name="password" class="form-control" required placeholder="Пароль" />
+                                <ul class="field_error" ng-show="for_password.$dirty && for_password.$invalid">
+                                    <li ng-show="for_password.$error.required">Обязательное поле</li>
+                                </ul>
+                            </div>
+
+                            <button id="login_btn" type="button" class="btn btn-lg btn-block btn-primary ladda-button" data-style="zoom-in" ng-disabled="login_form.$invalid" ng-click="submit('{% url 'auth_login' %}')">
+                                <span class="ladda-label">Войти</span>
+                                <span class="ladda-spinner"></span>
+                            </button>
+
+                            <br /><a href="{% url 'registration_register' %}" ng-show="!loading" class="pull-right">Регистрация</a>
+
                         </fieldset>
+                        <input style="display:none" type="submit" value="" />
                     </form>
                 </div>
 

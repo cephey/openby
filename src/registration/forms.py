@@ -3,36 +3,21 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model, authenticate
-# from django.core.exceptions import ObjectDoesNotExist
-
-from djangular.forms.angular_model import NgModelFormMixin
-
-from registration.validators import validate_username, validate_email
 
 User = get_user_model()
-attrs_dict = {'class': 'form-control'}
-attrs_dict_focus = {'class': 'form-control', 'autofocus': ''}
 
 
-class RegistrationForm(NgModelFormMixin, forms.Form):
+class RegistrationForm(forms.Form):
     """
     Форма регистрации нового пользователя    
     """
-    username = forms.CharField(
-        label=_("Username"), validators=[validate_username], max_length=30, 
-        widget=forms.TextInput(attrs=attrs_dict_focus))
+    username = forms.RegexField(
+        regex=r'^\w+$', max_length=30,
+        error_messages={'invalid': _("This value must contain only letters, numbers and underscores.")})
 
-    email = forms.CharField(
-        label=_("E-mail"), validators=[validate_email], 
-        widget=forms.TextInput(attrs=attrs_dict))
-
-    password1 = forms.CharField(
-        label=_("Password"),
-        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False))
-
-    password2 = forms.CharField(
-        label=_("Password (again)"),
-        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False))
+    email = forms.EmailField()
+    password1 = forms.CharField(widget=forms.PasswordInput(render_value=False))
+    password2 = forms.CharField(widget=forms.PasswordInput(render_value=False))
     
     def clean_username(self):
         """
@@ -56,17 +41,12 @@ class RegistrationForm(NgModelFormMixin, forms.Form):
         return self.cleaned_data
 
 
-class AuthenticationForm(NgModelFormMixin, forms.Form):
+class AuthenticationForm(forms.Form):
     """
     Форма для аутентификации пользователя
     """
-    username = forms.CharField(
-        label=_("Username"), validators=[validate_username], max_length=30, 
-        widget=forms.TextInput(attrs=attrs_dict_focus))
-
-    password = forms.CharField(
-        label=_("Password"),
-        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False))
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput(render_value=False))
 
     def __init__(self, request=None, *args, **kwargs):
         """

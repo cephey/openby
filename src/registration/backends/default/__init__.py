@@ -1,6 +1,6 @@
 #coding:utf-8
 
-from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login, logout as auth_logout
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
 
@@ -65,8 +65,10 @@ class DefaultBackend(object):
     def get_register_form_class(self, request):
         """
         Возвращаю класс формы для регистрации пользователя
+
+        RegistrationFormUniqueEmail - уникальный username и email
+        RegistrationForm            - уникальный username
         """
-        # return RegistrationFormUniqueEmail
         return RegistrationForm
 
     def get_login_form_class(self, request):

@@ -42,22 +42,12 @@ class RegisterView(TemplateView):
     """
     template_name='registration_form.html'
 
-    def _add_extra_context(self, request, form, extra_context):
+    def get(self, request, backend, extra_context=None):
         if extra_context is None:
             extra_context = {}
         context = RequestContext(request)
         for key, value in extra_context.items():
             context[key] = callable(value) and value() or value
-        context["form"] = form
-        
-        return context
-
-    def get(self, request, backend, extra_context=None):
-        backend = get_backend(backend)
-
-        form_class = backend.get_register_form_class(request)
-        form = form_class(scope_prefix='user')
-        context = self._add_extra_context(request, form, extra_context)
 
         return self.render_to_response(context)
 
@@ -66,7 +56,7 @@ class RegisterView(TemplateView):
         backend = get_backend(backend)
 
         form_class = backend.get_register_form_class(request)
-        form = form_class(scope_prefix='user', data=request.POST)
+        form = form_class(data=request.POST)
 
         result = {'success': False, 'errors': []}
         if form.is_valid():
@@ -84,22 +74,12 @@ class LoginView(TemplateView):
     """
     template_name='login_form.html'
 
-    def _add_extra_context(self, request, form, extra_context):
+    def get(self, request, backend, extra_context=None):
         if extra_context is None:
             extra_context = {}
         context = RequestContext(request)
         for key, value in extra_context.items():
             context[key] = callable(value) and value() or value
-        context["form"] = form
-        
-        return context
-
-    def get(self, request, backend, extra_context=None):
-        backend = get_backend(backend)
-
-        form_class = backend.get_login_form_class(request)
-        form = form_class(scope_prefix='user')
-        context = self._add_extra_context(request, form, extra_context)
 
         request.session.set_test_cookie()
 
@@ -110,7 +90,7 @@ class LoginView(TemplateView):
         backend = get_backend(backend)
 
         form_class = backend.get_login_form_class(request)
-        form = form_class(scope_prefix='user', data=request.POST)
+        form = form_class(data=request.POST)
 
         result = {'success': False, 'errors': []}
         if form.is_valid():

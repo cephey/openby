@@ -37,3 +37,6 @@ nosetests.xml
 
 # sqlite
 *.sqlite3
+
+# sass
+.sass-cache

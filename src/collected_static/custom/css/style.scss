@@ -1,13 +1,12 @@
 /* цвет границы блока ошибок и текста в нем */
-body {
-  padding-top: 70px; }
+$error_color: #b94a48;
 
-.relative {
-  position: relative; }
+body { padding-top: 70px; }
+
+.relative { position: relative; }
 
 /* неактивный заголовок panel-header */
-.disabled_title {
-  color: #bbbbbb; }
+.disabled_title { color: #bbbbbb; }
 
 /* блок ошибок поля формы */
 .field_error {
@@ -21,24 +20,26 @@ body {
   font-size: .85em;
   border-radius: 4px;
   box-shadow: 0 1px 3px #aaaaaa;
-  border: 1px solid #b94a48;
+  border: 1px solid $error_color;
   opacity: 0.9;
-  list-style: none; }
-  .field_error li {
+  list-style: none;
+  li {
     padding-left: 5px;
     line-height: 15px;
-    color: #b94a48; }
-  .field_error:before {
+    color: $error_color;
+  }
+  &:before {
     content: "\25C0";
     position: absolute;
     top: 2px;
     left: -12px;
     font-size: 16px;
-    color: #b94a48;
-    text-shadow: none; }
+    color: $error_color;
+    text-shadow: none;
+  }
+}
 
 /* Всегда скрываю нетронутые field_error */
 /* Скрываю невалидные field_error когда на input focus */
 input.ng-pristine + .field_error,
-.ng-invalid:focus + .field_error {
-  display: none; }
+.ng-invalid:focus + .field_error { display: none; }

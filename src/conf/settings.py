@@ -121,7 +121,6 @@ INSTALLED_APPS = (
     'sekizai',
     'pages',
     'registration',
-    'djangular',
 )
 
 SESSION_ENGINE = 'redis_sessions.session'

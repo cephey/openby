@@ -17,6 +17,8 @@ REG_SUCCESS = {
                 u'отправлено письмо с ссылкой для активации аккаунта.'
 }
 
+LOGIN_REDIRECT_URL = getattr(settings, 'LOGIN_REDIRECT_URL', '/profile/')
+
 
 class ActivateView(View):
     """
@@ -97,7 +99,7 @@ class LoginView(TemplateView):
             # Проверка безопасного перенаправления
             redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
             if not is_safe_url(url=redirect_to, host=request.get_host()):
-                redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
+                redirect_to = resolve_url(LOGIN_REDIRECT_URL)
 
             backend.login(request, form)
 

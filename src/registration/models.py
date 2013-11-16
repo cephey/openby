@@ -22,6 +22,7 @@ except ImportError:
 
 
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
+ACCOUNT_ACTIVATION_DAYS = getattr(settings, 'ACCOUNT_ACTIVATION_DAYS', 2)
 
 
 class RegistrationManager(models.Manager):
@@ -214,7 +215,7 @@ class RegistrationProfile(models.Model):
            method returns ``True``.
         
         """
-        expiration_date = datetime.timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS)
+        expiration_date = datetime.timedelta(days=ACCOUNT_ACTIVATION_DAYS)
         return self.activation_key == self.ACTIVATED or \
                (self.user.date_joined + expiration_date <= datetime_now())
     activation_key_expired.boolean = True
@@ -226,7 +227,7 @@ class RegistrationProfile(models.Model):
 
         ctx_dict = {
             'activation_key': self.activation_key,
-            'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
+            'expiration_days': ACCOUNT_ACTIVATION_DAYS,
             'site': site}
 
         subject = render_to_string('activation_email_subject.txt', ctx_dict)

@@ -141,13 +141,6 @@ TCT = config.get(CONF, 'CUSTOM_TEMPLATE_CACHE_TIME')
 
 COMPANY_NAME = 'OPENBY'
 
-# редирект после авторизации в случае 
-# если секции 'next' в url нет
-LOGIN_REDIRECT_URL = '/profile/'
-# количество дней в течении которых 
-# можно активировать аккаунт
-ACCOUNT_ACTIVATION_DAYS = 2
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

@@ -1,7 +1,7 @@
 #coding:utf-8
 
 from django.conf import settings
-from django.shortcuts import redirect, resolve_url
+from django.shortcuts import redirect
 from django.template import RequestContext
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -16,9 +16,6 @@ REG_SUCCESS = {
     'message': u'На указанный Вами адрес электронной почты '
                 u'отправлено письмо с ссылкой для активации аккаунта.'
 }
-
-LOGIN_REDIRECT_URL = getattr(settings, 'LOGIN_REDIRECT_URL', '/profile/')
-
 
 class ActivateView(View):
     """
@@ -98,7 +95,7 @@ class LoginView(TemplateView):
         if form.is_valid():
             # Проверка безопасного перенаправления
             redirect_to = request.REQUEST.get(
-                REDIRECT_FIELD_NAME, LOGIN_REDIRECT_URL)
+                REDIRECT_FIELD_NAME, settings.LOGIN_REDIRECT_URL)
 
             backend.login(request, form)
 

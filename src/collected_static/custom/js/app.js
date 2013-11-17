@@ -17,17 +17,17 @@ var App = angular.module('App', [], function ($interpolateProvider) {
 .controller('RegisterCtrl', ['$scope', '$http', function ($scope, $http) {
 
     /* привязываем лоудер к кнопке регистрации */
-    $scope.reg_btn = Ladda.create(document.querySelector('#reg_btn'));
+    $scope.btn = Ladda.create(document.querySelector('#reg_btn'));
 
     // начало ajax запроса
     $scope.ajax_start = function () {
         $scope.loading = true;
-        $scope.reg_btn.start();
+        $scope.btn.start();
     };
     // конец ajax запроса
     $scope.ajax_finish = function () {
         $scope.loading = false;
-        $scope.reg_btn.stop();
+        $scope.btn.stop();
     };
 
     /* сабмит формы регистрации */
@@ -61,17 +61,17 @@ var App = angular.module('App', [], function ($interpolateProvider) {
 .controller('LoginCtrl', ['$scope', '$http', function ($scope, $http) {
 
     /* привязываем лоудер к кнопке аутентификации */
-    $scope.reg_btn = Ladda.create(document.querySelector('#login_btn'));
+    $scope.btn = Ladda.create(document.querySelector('#login_btn'));
 
     // начало ajax запроса
     $scope.ajax_start = function () {
         $scope.loading = true;
-        $scope.reg_btn.start();
+        $scope.btn.start();
     };
     // конец ajax запроса
     $scope.ajax_finish = function () {
         $scope.loading = false;
-        $scope.reg_btn.stop();
+        $scope.btn.stop();
     };
 
     /* сабмит формы регистрации */
@@ -87,8 +87,8 @@ var App = angular.module('App', [], function ($interpolateProvider) {
                 $.param($scope.user)
             ).success(function(data, status, headers, config) {
                 if (data.success) {
-                    $scope.message = data.message;
                     $scope.ajax_success = true;
+                    window.location.href = data.next;
                 } else {
                     console.log(data.errors);
                 }

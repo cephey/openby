@@ -1,5 +1,6 @@
 #coding:utf-8
 
+from django.conf import settings
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
@@ -7,6 +8,8 @@ from django.contrib.sites.models import Site
 from registration import signals
 from registration.forms import RegistrationFormUniqueEmail, AuthenticationForm, RegistrationForm
 from registration.models import RegistrationProfile
+
+DISABLED_UNIQUE_EMAIL = getattr(settings, 'DISABLED_UNIQUE_EMAIL', False)
 
 
 class DefaultBackend(object):
@@ -69,7 +72,10 @@ class DefaultBackend(object):
         RegistrationFormUniqueEmail - уникальный username и email
         RegistrationForm            - уникальный username
         """
-        return RegistrationForm
+        if DISABLED_UNIQUE_EMAIL:
+            return RegistrationForm
+        else:
+            return RegistrationFormUniqueEmail
 
     def get_login_form_class(self, request):
         """

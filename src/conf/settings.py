@@ -141,6 +141,9 @@ TCT = config.get(CONF, 'CUSTOM_TEMPLATE_CACHE_TIME')
 
 COMPANY_NAME = 'OPENBY'
 
+# отключаю проверку уникальности email при регистрации
+DISABLED_UNIQUE_EMAIL = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

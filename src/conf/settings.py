@@ -1,11 +1,11 @@
-# coding: utf-8
+#coding:utf-8
 import os
 from ConfigParser import RawConfigParser
 
-PROJECT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 config = RawConfigParser()
-config.read(os.path.join(PROJECT_DIR, 'settings.ini'))
+config.read(os.path.join(BASE_DIR, 'settings.ini'))
 
 ########## Версия проекта ##########
 CONF = 'development'
@@ -14,14 +14,61 @@ CONF = 'development'
 #   production
 ####################################
 
+SECRET_KEY = 'cu8@$=0%-$n0r8$!u5!(efeziykiqdjvc1q!%s*-93v*zi^t*^'
+
 DEBUG = config.get(CONF, 'DEBUG')
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    ('Andrey Ptitsyn', 'andrey.ptitsyn86@gmail.com'),
+ALLOWED_HOSTS = ['*']
+
+
+# Application definition
+
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'sekizai',
+    'pages',
+    'registration',
 )
 
-MANAGERS = ADMINS
+MIDDLEWARE_CLASSES = (
+    # 'django.middleware.cache.UpdateCacheMiddleware',
+
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
+)
+
+ROOT_URLCONF = 'conf.urls'
+WSGI_APPLICATION = 'conf.wsgi.application'
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
+)
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
+
+    'sekizai.context_processors.sekizai',
+    'context_processors.brand',
+)
+
 
 DATABASES = {
     'default': {
@@ -41,86 +88,16 @@ EMAIL_HOST_USER = config.get(CONF, 'EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config.get(CONF, 'EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config.get(CONF, 'EMAIL_USE_TLS')
 
-ALLOWED_HOSTS = ['*']
 TIME_ZONE = 'Europe/Moscow'
 LANGUAGE_CODE = 'ru'
-SITE_ID = 1
-
+TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-MEDIA_ROOT = ''
-MEDIA_URL = ''
-
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_DIR, 'collected_static'),
-)
-
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
-
-SECRET_KEY = 'iig(ve!k3pus-1e+49nuu8vb1ol3$gq$ygr3oq6vm2e$=^oztv'
-
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
-
-MIDDLEWARE_CLASSES = (
-    # 'django.middleware.cache.UpdateCacheMiddleware',
-
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    
-    # 'django.middleware.cache.FetchFromCacheMiddleware',
-)
-
-ROOT_URLCONF = 'conf.urls'
-
-WSGI_APPLICATION = 'conf.wsgi.application'
-
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'templates'),
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.request',
-
-    'sekizai.context_processors.sekizai',
-    'context_processors.brand',
-)
-
-
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.admin',
-
-    'sekizai',
-    'pages',
-    'registration',
+    os.path.join(BASE_DIR, 'collected_static'),
 )
 
 SESSION_ENGINE = 'redis_sessions.session'
@@ -143,27 +120,3 @@ COMPANY_NAME = 'OPENBY'
 
 # отключаю проверку уникальности email при регистрации
 DISABLED_UNIQUE_EMAIL = True
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
-}

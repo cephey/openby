@@ -97,10 +97,8 @@ class LoginView(TemplateView):
         result = {'success': False, 'errors': []}
         if form.is_valid():
             # Проверка безопасного перенаправления
-            import pdb; pdb.set_trace()
-            redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, LOGIN_REDIRECT_URL)
-            # if not is_safe_url(url=redirect_to, host=request.get_host()):
-                # redirect_to = resolve_url(LOGIN_REDIRECT_URL)
+            redirect_to = request.REQUEST.get(
+                REDIRECT_FIELD_NAME, LOGIN_REDIRECT_URL)
 
             backend.login(request, form)
 

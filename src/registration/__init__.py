@@ -1,33 +1,45 @@
-VERSION = (0, 8, 0, 'final', 0)
+#coding:utf-8
 
-def get_version(version=None):
-    """Derives a PEP386-compliant version number from VERSION."""
-    if version is None:
-        version = VERSION
-    assert len(version) == 5
-    assert version[3] in ('alpha', 'beta', 'rc', 'final')
+from django.conf import settings
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
-    # Now build the two parts of the version number:
-    # main = X.Y[.Z]
-    # sub = .devN - for pre-alpha releases
-    #     | {a|b|c}N - for alpha, beta and rc releases
+email_confirm = getattr(settings, 'REGISTER_EMAIL_CONFIRMATION', True)
 
-    parts = 2 if version[2] == 0 else 3
-    main = '.'.join(str(x) for x in version[:parts])
 
-    sub = ''
-    if version[3] == 'alpha' and version[4] == 0:
-        sub = ' pre-alpha'
-        # At the toplevel, this would cause an import loop.
-        #from django.utils.version import get_git_changeset
-        #git_changeset = get_git_changeset()
-        #if git_changeset:
-        #    sub = '.dev%s' % git_changeset
+def reg_success(request):
+    """
+    Возвращаю словарь который содержит флаг, что регистрация прошла успешно.
 
-    elif version[3] != 'final':
-        #mapping = {'alpha': 'a', 'beta': 'b', 'rc': 'c'}
-        #sub = mapping[version[3]] + str(version[4])
-        sub = ' ' + version[3]
-        if version[4] != 0:
-            sub += ' ' + str(version[4])
-    return '%s%s' % (main, sub)
+    Если используется подтверждение регистрации через почту в словарь входит 
+    сообщение, что для завершения регистрации нужно перейти по ссылке в письме.
+
+    Если подтверждение через почту не используется, то словарь 
+    содержит ссылку с редиректом на страницу профиля пользователя.
+
+    """
+    result = { 'success': True }
+
+    if email_confirm:
+        result['_type'] = 'email'
+        result['message'] = u'На указанный Вами адрес электронной почты '\
+                            u'отправлено письмо с ссылкой для активации аккаунта.'
+    else:
+        result['_type'] = ''
+        result['next'] = request.REQUEST.get(
+            REDIRECT_FIELD_NAME, settings.LOGIN_REDIRECT_URL)
+
+    return result
+
+
+def get_register_backend():
+    """
+    Возвращаю строковое представление бекенда регистрации
+
+    В зависимости от того включена или нет в настройках 
+    регистрация с подтверждением на почту, использую нужный бекенд
+
+    """
+    if email_confirm:
+        return 'registration.backends.default.DefaultBackend'
+    else:
+        return 'registration.backends.simple.SimpleBackend'

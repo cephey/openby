@@ -8,14 +8,11 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.views.generic import View, TemplateView
 from django.utils.http import is_safe_url
 
+from registration import reg_success
 from registration.backends import get_backend
+
 from utils.decorators import render_to_json
 
-REG_SUCCESS = {
-    'success': True,
-    'message': u'На указанный Вами адрес электронной почты '
-                u'отправлено письмо с ссылкой для активации аккаунта.'
-}
 
 class ActivateView(View):
     """
@@ -60,7 +57,7 @@ class RegisterView(TemplateView):
         result = {'success': False, 'errors': []}
         if form.is_valid():
             backend.register(request, **form.cleaned_data)
-            result = REG_SUCCESS
+            result = reg_success(request)
         else:
             result['errors'] = form.errors
 

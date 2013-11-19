@@ -118,5 +118,8 @@ TCT = config.get(CONF, 'CUSTOM_TEMPLATE_CACHE_TIME')
 
 COMPANY_NAME = 'OPENBY'
 
+# редирект после аутентификации или простой регистрации
+LOGIN_REDIRECT_URL = '/'
+
 # отключаю проверку уникальности email при регистрации
 DISABLED_UNIQUE_EMAIL = True

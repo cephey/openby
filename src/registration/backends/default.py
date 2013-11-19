@@ -1,29 +1,24 @@
 #coding:utf-8
 
-from django.conf import settings
 from django.contrib.auth import login as auth_login
-from django.contrib.sites.models import RequestSite
-from django.contrib.sites.models import Site
+from django.contrib.sites.models import Site, RequestSite
 
 from registration import signals
 from registration.models import RegistrationProfile
-
 from registration.backends import BaseRegAuthBackend
-
-DISABLED_UNIQUE_EMAIL = getattr(settings, 'DISABLED_UNIQUE_EMAIL', False)
 
 
 class DefaultBackend(BaseRegAuthBackend):
     """
-    Бэкенд для регистрации, активации и аутентификации пользователя    
-    """
+    Бэкенд для регистрации, активации и аутентификации пользователя
 
+    """
     def register(self, request, **kwargs):
         """
         Получаю username, email address and password и 
         регистрирую нового неактивного пользователя
-        """
 
+        """
         username, email, password = kwargs['username'], kwargs['email'], kwargs['password1']
         if Site._meta.installed:
             site = Site.objects.get_current()
@@ -39,8 +34,8 @@ class DefaultBackend(BaseRegAuthBackend):
         """
         Получаю ключ активации, и активирую аккаунт пользователя, 
         которому он принадлежит
-        """
 
+        """
         activated_user = RegistrationProfile.objects.activate_user(activation_key)
         if activated_user:
             # логинем пользователя. так как перед login всегда надо

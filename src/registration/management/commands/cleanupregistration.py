@@ -1,11 +1,4 @@
-"""
-A management command which deletes expired accounts (e.g.,
-accounts which signed up but never activated) from the database.
-
-Calls ``RegistrationProfile.objects.delete_expired_users()``, which
-contains the actual logic for determining which accounts are deleted.
-
-"""
+#coding:utf-8
 
 from django.core.management.base import NoArgsCommand
 
@@ -13,7 +6,7 @@ from registration.models import RegistrationProfile
 
 
 class Command(NoArgsCommand):
-    help = "Delete expired user registrations from the database"
+    help = u"Удаление из базы пользователей с протухшим ключом активации"
 
     def handle_noargs(self, **options):
         RegistrationProfile.objects.delete_expired_users()

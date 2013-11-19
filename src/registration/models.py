@@ -91,7 +91,7 @@ class RegistrationManager(models.Manager):
         Возвращаю ``RegistrationProfile``
 
         Ключ активации будет SHA1 на основе username и соли
-        
+
         """
         salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
         username = user.username

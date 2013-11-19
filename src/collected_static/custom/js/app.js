@@ -43,8 +43,15 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                 $.param($scope.user)
             ).success(function(data, status, headers, config) {
                 if (data.success) {
-                    $scope.message = data.message;
-                    $scope.ajax_success = true;
+                    if (data._type === 'email') {
+                        /* если включена активация через почту,
+                         то просим пользователя активировать аккаунт */
+                        $scope.message = data.message;
+                        $scope.ajax_success = true;
+                    } else {
+                        /* иначе просто редиректим на страницу профиля */
+                        window.location.href = data.next;
+                    }
                 } else {
                     console.log(data.errors);
                 }
@@ -87,7 +94,7 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                 $.param($scope.user)
             ).success(function(data, status, headers, config) {
                 if (data.success) {
-                    $scope.ajax_success = true;
+                    /* если все хорошо, редирект на страницу профиля */
                     window.location.href = data.next;
                 } else {
                     console.log(data.errors);

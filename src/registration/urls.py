@@ -11,6 +11,7 @@ from registration.views import (LoginView,
 
 
 urlpatterns = patterns('',
+
     url(r'^login/$', LoginView.as_view(),
         {'backend': get_register_backend()},
         name='auth_login'),

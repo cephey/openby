@@ -10,7 +10,7 @@ from registration.backends import BaseRegAuthBackend
 
 class DefaultBackend(BaseRegAuthBackend):
     """
-    Бэкенд для регистрации, активации и аутентификации пользователя
+    Бэкенд для регистрации и активации пользователя
 
     """
     def register(self, request, **kwargs):

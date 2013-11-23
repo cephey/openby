@@ -1,15 +1,19 @@
 #coding:utf-8
 
+from django.http import Http404
 from django.conf import settings
 from django.shortcuts import redirect
 from django.template import RequestContext
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView
+from django.views.generic.detail import DetailView
 
 from registration import reg_success
 from registration.backends import get_backend
 
 from utils.decorators import render_to_json
+from utils.mixins import CacheMixin, LoginRequiredMixin
 
 
 class ActivateView(TemplateView):
@@ -133,3 +137,38 @@ class LogoutView(View):
         backend.logout(request)
 
         return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+class ProfileView(LoginRequiredMixin, CacheMixin, DetailView):
+    """
+    Личный кабинет
+
+    """
+    model = User
+    cache_timeout = 0
+    template_name = 'profile.html'
+
+    def get_object(self, queryset=None):
+        """
+        Возвращаю пользователя
+
+        """
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        pk = self.request.user.id
+        if pk is not None:
+            queryset = queryset.filter(pk=pk)
+        else:
+            raise AttributeError(
+                u"В {0} не передан id пользователя".\
+                format(self.__class__.__name__))
+
+        try:
+            obj = queryset.get()
+        except User.ObjectDoesNotExist:
+            raise Http404(
+                "Не найдено {0} соответствующих запросу".\
+                format(queryset.model._meta.verbose_name))
+
+        return obj

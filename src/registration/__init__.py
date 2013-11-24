@@ -3,6 +3,9 @@
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
+from utils.conf_inject import inject_app_defaults
+inject_app_defaults(__name__)
+
 email_confirm = getattr(settings, 'REGISTER_EMAIL_CONFIRMATION', True)
 
 

@@ -1,7 +1,6 @@
 #coding:utf-8
 
 from django.conf.urls import patterns, url
-from django.views.generic.base import RedirectView
 # from django.contrib.auth import views as auth_views
 
 from registration import get_register_backend
@@ -51,14 +50,4 @@ urlpatterns = patterns('',
                        # url(r'^password/reset/done/$',
                        #     auth_views.password_reset_done,
                        #     name='auth_password_reset_done'),
-)
-
-# редиректы с джанговсих login и profile вьюшек
-urlpatterns += patterns('',
-
-    url(r'^accounts/login/$', RedirectView.as_view(pattern_name='auth_login'),
-        name='django_auth_login'),
-
-    url(r'^accounts/profile/$', RedirectView.as_view(pattern_name='profile'),
-        name='django_profile'),
 )

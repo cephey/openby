@@ -1,3 +1,5 @@
+var FFF = undefined;
+
 var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
     $interpolateProvider.startSymbol('[%');
     $interpolateProvider.endSymbol('%]');
@@ -19,6 +21,14 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
     /* привязываем лоудер к кнопке регистрации */
     $scope.btn = Ladda.create(document.querySelector('#reg_btn'));
 
+    /* возвращает русское название поля по django_field_name */
+    $scope.fields = {
+        username: 'Имя',
+        email: 'E-mail',
+        password1: 'Пароль',
+        password2: 'Пароль (ещё раз)'
+    };
+
     // начало ajax запроса
     $scope.ajax_start = function () {
         $scope.loading = true;
@@ -35,12 +45,21 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
 
         /* если указан адрес для регистрации и форма не пустая */
         if (url && $scope.user) {
+
+            /* если форма не валидна она не сабмитится */
+            if ($scope.reg_form.$invalid) return false;
+
             /* показываю лоудер */
             $scope.ajax_start();
 
+            var post_params = {};
+            for (var i in $scope.fields) {
+                post_params[i] = $('[name="' + i + '"]').val();
+            }
+
             $http.post(
                 url,
-                $.param($scope.user)
+                $.param(post_params)
             ).success(function(data, status, headers, config) {
                 if (data.success) {
                     if (data._type === 'email') {
@@ -53,7 +72,15 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                         window.location.href = data.next;
                     }
                 } else {
-                    console.log(data.errors);
+                    // если сервер вернул ошибки формы, то отображаю их
+                    $scope.form_errors = {};
+                    for (var i in data.errors) {
+                        if (i === '__all__') {
+                            $scope.form_errors_all = data.errors[i];
+                        } else {
+                            $scope.form_errors[i] = data.errors[i];
+                        }
+                    }
                 }
             }).error(function(data, status, headers, config){
                 $scope.message = 'Сервер временно не отвечает, попробуйте ещё раз чуть позже.';
@@ -86,6 +113,10 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
 
         /* если указан адрес для аутентификации и форма не пустая */
         if (url && $scope.user) {
+
+            /* если форма не валидна она не сабмитится */
+            if ($scope.login_form.$invalid) return false;
+
             /* показываю лоудер */
             $scope.ajax_start();
 

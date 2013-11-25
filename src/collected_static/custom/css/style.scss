@@ -41,5 +41,7 @@ body { padding-top: 70px; }
 
 /* Всегда скрываю нетронутые field_error */
 /* Скрываю невалидные field_error когда на input focus */
-input.ng-pristine + .field_error,
-.ng-invalid:focus + .field_error { display: none; }
+input.ng-pristine + .field_error { display: none; }
+// .ng-invalid:focus + .field_error { display: none; }
+
+.alert ul { list-style: none; }

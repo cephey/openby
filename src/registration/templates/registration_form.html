@@ -4,8 +4,31 @@
 {% block title %}Регистрация{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row" ng-controller="RegisterCtrl">
+<div class="container" ng-controller="RegisterCtrl">
+
+    <!-- Ошибки которые приходят с сервера после сабмита -->
+    <div class="row" ng-show="form_errors">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="alert alert-dismissable alert-danger">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <div ng-repeat="(name, errors) in form_errors">
+                    <span ng-repeat="err in errors">
+                        <strong>[% fields[name] %]:</strong> [% err %]
+                    </span>
+                    <br />
+                </div>
+                <div ng-show="form_errors_all">
+                    <span ng-repeat="err in form_errors_all">
+                        <strong>Общие:</strong> [% err %]
+                    </span>
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Форма регистрации -->
+    <div class="row">
 
         <div class="col-md-4 col-md-offset-4" ng-show="!message">
             <div class="panel" ng-class="{'panel-primary': !loading, 'panel-default': loading}">
@@ -19,7 +42,7 @@
                         <fieldset ng-disabled="loading">
 
                             <div class="form-group relative" ng-form="for_username">
-                                <input type="text" ng-model="user.username" name="username" ng-maxlength="30" ng-pattern="/^[a-zA-z -]+$/" class="form-control" autofocus required placeholder="Имя" />
+                                <input type="text" ng-model="user.username" name="username" ng-maxlength="30" ng-pattern="/^[a-zA-z -]+$/" class="form-control" autofocus required placeholder="[% fields['username'] %]" />
                                 <ul class="field_error" ng-show="for_username.$dirty && for_username.$invalid">
                                     <li ng-show="for_username.$error.required">Обязательное поле</li>
                                     <li ng-show="for_username.$error.pattern">Допускаются только латинские буквы, цифры и символы @ . + - _</li>
@@ -28,7 +51,7 @@
                             </div>
 
                             <div class="form-group relative" ng-form="for_email">
-                                <input type="text" ng-model="user.email" name="email" ng-pattern="/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/" class="form-control" required placeholder="E-mail" />
+                                <input type="text" ng-model="user.email" name="email" ng-pattern="/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/" class="form-control" required placeholder="[% fields['email'] %]" />
                                 <ul class="field_error" ng-show="for_email.$dirty && for_email.$invalid">
                                     <li ng-show="for_email.$error.required">Обязательное поле</li>
                                     <li ng-show="for_email.$error.pattern">Введите валидный адрес e-mail</li>
@@ -36,7 +59,7 @@
                             </div>
 
                             <div class="form-group relative" ng-form="for_password1">
-                                <input type="password" ng-model="user.password1" name="password1" ng-minlength="4" class="form-control" required placeholder="Пароль" />
+                                <input type="password" ng-model="user.password1" name="password1" ng-minlength="4" class="form-control" required placeholder="[% fields['password1'] %]" />
                                 <ul class="field_error" ng-show="for_password1.$dirty && for_password1.$invalid">
                                     <li ng-show="for_password1.$error.required">Обязательное поле</li>
                                     <li ng-show="for_password1.$error.minlength">Пароль не менее 4 символов</li>
@@ -44,7 +67,7 @@
                             </div>
 
                             <div class="form-group relative" ng-form="for_password2">
-                                <input type="password" ng-model="user.password2" name="password2" equal-password class="form-control" placeholder="Пароль (ещё раз)" />
+                                <input type="password" ng-model="user.password2" name="password2" equal-password class="form-control" placeholder="[% fields['password2'] %]" />
                                 <ul class="field_error" ng-show="for_password2.$dirty && for_password2.$invalid">
                                     <li ng-show="for_password2.$error.equalpassword">Пароли не совпадают</li>
                                 </ul>
@@ -63,6 +86,7 @@
             </div>
         </div>
 
+        <!-- Ответ сервера после сабмита -->
         <div class="col-md-10 col-md-offset-1" ng-show="message">
             <div class="alert alert-dismissable" ng-class="{'alert-success': ajax_success, 'alert-danger': ajax_error}">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>

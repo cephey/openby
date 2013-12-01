@@ -33,9 +33,10 @@
                         <fieldset ng-disabled="loading">
 
                             <div class="form-group relative" ng-form="for_username">
-                                <input type="text" ng-model="user.username" name="username" ng-maxlength="30" ng-pattern="/^[a-zA-z -]+$/" class="form-control" autofocus required placeholder="Имя" />
+                                <input type="text" ng-model="user.username" name="username" ng-maxlength="30" ng-pattern="/^[a-zA-z -]+$/" class="form-control" autofocus required server="false0" placeholder="Имя" />
                                 <ul class="field_error" ng-show="for_username.$dirty && for_username.$invalid">
-                                    <li ng-repeat="err in for_username.$error.server">[% err %]</li>
+                                    <!-- <li ng-repeat="err in for_username.$error.server">[% err %]</li> -->
+                                    <li ng-show="for_username.$error.server">[% for_username.$error.server %]</li>
                                     <li ng-show="for_username.$error.required">Обязательное поле</li>
                                     <li ng-show="for_username.$error.pattern">Допускаются только латинские буквы, цифры и символы @ . + - _</li>
                                     <li ng-show="for_username.$error.maxlength">Не более 30 символов</li>

@@ -1,5 +1,3 @@
-var FFF = undefined;
-
 var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
     $interpolateProvider.startSymbol('[%');
     $interpolateProvider.endSymbol('%]');
@@ -21,14 +19,6 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
     /* привязываем лоудер к кнопке регистрации */
     $scope.btn = Ladda.create(document.querySelector('#reg_btn'));
 
-    /* возвращает русское название поля по django_field_name */
-    $scope.fields = {
-        username: 'Имя',
-        email: 'E-mail',
-        password1: 'Пароль',
-        password2: 'Пароль (ещё раз)'
-    };
-
     // начало ajax запроса
     $scope.ajax_start = function () {
         $scope.loading = true;
@@ -47,15 +37,16 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
         if (url && $scope.user) {
 
             /* если форма не валидна она не сабмитится */
-            if ($scope.reg_form.$invalid) return false;
+            // if ($scope.reg_form.$invalid) return false;
 
+            $scope.form_errors.hide();
             /* показываю лоудер */
             $scope.ajax_start();
 
             var post_params = {};
-            for (var i in $scope.fields) {
-                post_params[i] = $('[name="' + i + '"]').val();
-            }
+            _.each($scope.fields, function(i){ post_params[i] = $('[name="' + i + '"]').val(); });
+
+            console.log(post_params);
 
             $http.post(
                 url,
@@ -73,14 +64,7 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                     }
                 } else {
                     // если сервер вернул ошибки формы, то отображаю их
-                    $scope.form_errors = {};
-                    for (var i in data.errors) {
-                        if (i === '__all__') {
-                            $scope.form_errors_all = data.errors[i];
-                        } else {
-                            $scope.form_errors[i] = data.errors[i];
-                        }
-                    }
+                    $scope.form_errors.show(data.errors);
                 }
             }).error(function(data, status, headers, config){
                 $scope.message = 'Сервер временно не отвечает, попробуйте ещё раз чуть позже.';
@@ -89,6 +73,38 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                 /* скрываю лоудер */
                 $scope.ajax_finish();
             });
+        }
+    };
+
+    $scope.fields = ['username', 'email', 'password1', 'password2'];
+
+    // _.each($scope.fields, function(elem){
+    //     $scope.$watch('user.' + elem, function(newVal, oldVal) {
+    //         delete $scope['for_' + elem].$error.server;
+    //     });
+    // });
+
+    /* объект для хранения ошибок формы */
+    $scope.form_errors = {
+        show: function(errors) {
+            /* Выводит ошибки которые пришли с сервера после сабмита */
+            // _.each(errors, function(val, key){ self[key] = val; });
+            var self = this;
+            _.each(errors, function(val, key){
+                // $scope.$apply(
+                //     $scope['for_' + key].$error.server = val
+                // );
+                // $scope['for_' + key].$invalid = true;
+                $scope['for_' + key].$error.server = val;
+            });
+        },
+        hide: function() {
+            /* очистка ошибок формы */
+            var self = this;
+            _.each($scope.fields, function(elem){
+                self[elem] = false;
+            });
+            self['__all__'] = false;
         }
     };
 }])
@@ -140,6 +156,38 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
         }
     };
 }])
+.directive('server', function () {
+    return {
+        require:'ngModel',
+        link: function (scope, elem, attrs, ctrl) {
+
+            ctrl.$parsers.unshift(function(viewValue) {
+
+                /* перед валидацией проверяю что форма не пустая
+                 и первое поле ввода пароля валидное */
+                if (scope.user && scope.user.password1 !== undefined) {
+
+                    /* если пользователь очистил поле,
+                     присваиваю ему undefined */
+                    if (viewValue == "") {
+                        viewValue = undefined;
+                    }
+
+                    if (scope.user.password1 === viewValue) {
+                        ctrl.$setValidity('equalpassword', true);
+                        return viewValue;
+                    } else {
+                        ctrl.$setValidity('equalpassword', false);
+                        return undefined;
+                    }
+                } else {
+                    ctrl.$setValidity('equalpassword', true);
+                    return viewValue;
+                }
+            });
+        }
+    };
+})
 .directive('equalPassword', function () {
     return {
         require:'ngModel',

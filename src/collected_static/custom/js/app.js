@@ -3,7 +3,7 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
     $interpolateProvider.endSymbol('%]');
 })
 .config(['$interpolateProvider', '$httpProvider', '$routeProvider', 
-    function($interpolateProvider, $httpProvider, $routeProvider) {
+    function ($interpolateProvider, $httpProvider, $routeProvider) {
 
         $interpolateProvider.startSymbol('[%');
         $interpolateProvider.endSymbol('%]');
@@ -16,42 +16,68 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
 }])
 .controller('RegisterCtrl', ['$scope', '$http', function ($scope, $http) {
 
-    /* привязываем лоудер к кнопке регистрации */
-    $scope.btn = Ladda.create(document.querySelector('#reg_btn'));
+    /* поля формы регистрации */
+    $scope.fields = ['username', 'email', 'password1', 'password2'];
 
-    // начало ajax запроса
-    $scope.ajax_start = function () {
-        $scope.loading = true;
-        $scope.btn.start();
+    $scope.ajax = {
+        /* привязываем лоудер к кнопке регистрации */
+        btn: Ladda.create(document.querySelector('#reg_btn')),
+
+        /* начало ajax запроса */
+        start: function () {
+            /* делаю форму недоступной для редактирования */
+            $scope.loading = true;
+            this.btn.start();
+            /* скрываю все прошлые ошибки */
+            $scope.form_errors.hide();
+        },
+        /* конец ajax запроса */
+        finish: function () {
+            $scope.loading = false;
+            this.btn.stop();
+        }
     };
-    // конец ajax запроса
-    $scope.ajax_finish = function () {
-        $scope.loading = false;
-        $scope.btn.stop();
+
+    /* объект для хранения ошибок формы */
+    $scope.form_errors = {
+        show: function (errors) {
+            /* Выводит ошибки которые пришли с сервера после сабмита */
+            var self = this;
+            _.each(errors, function (val, key) {
+                self[key] = val[0];
+            });
+        },
+        hide: function () {
+            /* очистка ошибок формы */
+            var self = this;
+            _.each($scope.fields, function (key) {
+                self[key] = false;
+            });
+            self['__all__'] = false;
+        }
     };
 
     /* сабмит формы регистрации */
-    $scope.submit = function(url) {
+    $scope.submit = function (url) {
 
         /* если указан адрес для регистрации и форма не пустая */
         if (url && $scope.user) {
 
             /* если форма не валидна она не сабмитится */
-            // if ($scope.reg_form.$invalid) return false;
+            if ($scope.reg_form.$invalid) return false;
 
-            $scope.form_errors.hide();
             /* показываю лоудер */
-            $scope.ajax_start();
+            $scope.ajax.start();
 
             var post_params = {};
-            _.each($scope.fields, function(i){ post_params[i] = $('[name="' + i + '"]').val(); });
-
-            console.log(post_params);
+            _.each($scope.fields, function (i) {
+                post_params[i] = $('[name="' + i + '"]').val();
+            });
 
             $http.post(
                 url,
                 $.param(post_params)
-            ).success(function(data, status, headers, config) {
+            ).success(function (data, status, headers, config) {
                 if (data.success) {
                     if (data._type === 'email') {
                         /* если включена активация через почту,
@@ -66,34 +92,13 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                     // если сервер вернул ошибки формы, то отображаю их
                     $scope.form_errors.show(data.errors);
                 }
-            }).error(function(data, status, headers, config){
+            }).error(function (data, status, headers, config) {
                 $scope.message = 'Сервер временно не отвечает, попробуйте ещё раз чуть позже.';
                 $scope.ajax_error = true;
-            }).then(function() {
+            }).then(function () {
                 /* скрываю лоудер */
-                $scope.ajax_finish();
+                $scope.ajax.finish();
             });
-        }
-    };
-
-    $scope.fields = ['username', 'email', 'password1', 'password2'];
-
-    /* объект для хранения ошибок формы */
-    $scope.form_errors = {
-        show: function(errors) {
-            /* Выводит ошибки которые пришли с сервера после сабмита */
-            var self = this;
-            _.each(errors, function(val, key){
-                self[key] = val[0];
-            });
-        },
-        hide: function() {
-            /* очистка ошибок формы */
-            var self = this;
-            _.each($scope.fields, function(key){
-                self[key] = false;
-            });
-            self['__all__'] = false;
         }
     };
 }])
@@ -114,7 +119,7 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
     };
 
     /* сабмит формы регистрации */
-    $scope.submit = function(url) {
+    $scope.submit = function (url) {
 
         /* если указан адрес для аутентификации и форма не пустая */
         if (url && $scope.user) {
@@ -128,57 +133,63 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
             $http.post(
                 url,
                 $.param($scope.user)
-            ).success(function(data, status, headers, config) {
+            ).success(function (data, status, headers, config) {
                 if (data.success) {
                     /* если все хорошо, редирект на страницу профиля */
                     window.location.href = data.next;
                 } else {
                     console.log(data.errors);
                 }
-            }).error(function(data, status, headers, config){
+            }).error(function (data, status, headers, config) {
                 $scope.message = 'Сервер временно не отвечает, попробуйте ещё раз чуть позже.';
                 $scope.ajax_error = true;
-            }).then(function() {
+            }).then(function () {
                 /* скрываю лоудер */
                 $scope.ajax_finish();
             });
         }
     };
 }])
-.directive('server', function () {
+.directive('serverError', function () {
+    /* фейковый валидатор. Ничего не проверяет. Использую его только
+     для вывода ошибок приходящих с сервера после сабмита */
     return {
         require:'ngModel',
         link: function (scope, elem, attrs, ctrl) {
 
-            /* слежу за ошибками(приходящими с сервера) для этого поля,
-             и если они есть выставляю валидатор в undefined */
-            scope.$watch('form_errors.' + attrs.name, function(newVal, oldVal) {
+            /* слежу за появлением ошибки в объекте form_errors
+             относящейся к конкретному полю.
+              Если оно не пустое выставляю валидатор в false */
+            scope.$watch('form_errors.' + attrs.name, function (newVal, oldVal) {
 
                 if (newVal) {
-                    ctrl.$setValidity('server', false);
+                    ctrl.$setValidity('servererror', false);
                     return undefined;
                 } else {
-                    ctrl.$setValidity('server', true);
+                    ctrl.$setValidity('servererror', true);
                     return newVal;
                 }
             });
 
-            ctrl.$parsers.unshift(function(viewValue) {
+            /* сам по себе валидатор ничего не проверяет,
+             и всегда возвращает true (все OK) */
+            ctrl.$parsers.unshift(function (viewValue) {
 
-                ctrl.$setValidity('server', true);
+                ctrl.$setValidity('servererror', true);
                 return viewValue;
             });
         }
     };
 })
 .directive('equalPassword', function () {
+    /* валидатор для проверки равенства двух полей для ввода пароля */
     return {
         require:'ngModel',
         link: function (scope, elem, attrs, ctrl) {
 
             /* поля для повтора ввода пароля следит за изменением первого поля пароля,
              и если оно меняется, запускаю валидатор заново */
-            scope.$watch('user.password1', function(newVal, oldVal) {
+            scope.$watch('user.password1', function (newVal, oldVal) {
 
                 if (scope.user && newVal === scope.user.password2) {
                     ctrl.$setValidity('equalpassword', true);
@@ -189,7 +200,7 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                 }
             });
 
-            ctrl.$parsers.unshift(function(viewValue) {
+            ctrl.$parsers.unshift(function (viewValue) {
 
                 /* перед валидацией проверяю что форма не пустая
                  и первое поле ввода пароля валидное */

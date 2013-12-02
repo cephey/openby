@@ -78,31 +78,20 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
 
     $scope.fields = ['username', 'email', 'password1', 'password2'];
 
-    // _.each($scope.fields, function(elem){
-    //     $scope.$watch('user.' + elem, function(newVal, oldVal) {
-    //         delete $scope['for_' + elem].$error.server;
-    //     });
-    // });
-
     /* объект для хранения ошибок формы */
     $scope.form_errors = {
         show: function(errors) {
             /* Выводит ошибки которые пришли с сервера после сабмита */
-            // _.each(errors, function(val, key){ self[key] = val; });
             var self = this;
             _.each(errors, function(val, key){
-                // $scope.$apply(
-                //     $scope['for_' + key].$error.server = val
-                // );
-                // $scope['for_' + key].$invalid = true;
-                $scope['for_' + key].$error.server = val;
+                self[key] = val[0];
             });
         },
         hide: function() {
             /* очистка ошибок формы */
             var self = this;
-            _.each($scope.fields, function(elem){
-                self[elem] = false;
+            _.each($scope.fields, function(key){
+                self[key] = false;
             });
             self['__all__'] = false;
         }
@@ -161,29 +150,23 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
         require:'ngModel',
         link: function (scope, elem, attrs, ctrl) {
 
+            /* слежу за ошибками(приходящими с сервера) для этого поля,
+             и если они есть выставляю валидатор в undefined */
+            scope.$watch('form_errors.' + attrs.name, function(newVal, oldVal) {
+
+                if (newVal) {
+                    ctrl.$setValidity('server', false);
+                    return undefined;
+                } else {
+                    ctrl.$setValidity('server', true);
+                    return newVal;
+                }
+            });
+
             ctrl.$parsers.unshift(function(viewValue) {
 
-                /* перед валидацией проверяю что форма не пустая
-                 и первое поле ввода пароля валидное */
-                if (scope.user && scope.user.password1 !== undefined) {
-
-                    /* если пользователь очистил поле,
-                     присваиваю ему undefined */
-                    if (viewValue == "") {
-                        viewValue = undefined;
-                    }
-
-                    if (scope.user.password1 === viewValue) {
-                        ctrl.$setValidity('equalpassword', true);
-                        return viewValue;
-                    } else {
-                        ctrl.$setValidity('equalpassword', false);
-                        return undefined;
-                    }
-                } else {
-                    ctrl.$setValidity('equalpassword', true);
-                    return viewValue;
-                }
+                ctrl.$setValidity('server', true);
+                return viewValue;
             });
         }
     };

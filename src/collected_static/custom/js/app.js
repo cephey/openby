@@ -1,59 +1,60 @@
-var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
-    $interpolateProvider.startSymbol('[%');
-    $interpolateProvider.endSymbol('%]');
-})
-.config(['$interpolateProvider', '$httpProvider', '$routeProvider', 
+var App = angular.module('App', ['ngRoute']);
+
+App.config(['$interpolateProvider', '$httpProvider', '$routeProvider', 
     function ($interpolateProvider, $httpProvider, $routeProvider) {
 
+        /* задаю маркеры шаблонизатора */
         $interpolateProvider.startSymbol('[%');
         $interpolateProvider.endSymbol('%]');
 
-        $httpProvider.defaults.headers.post['X-CSRFToken'] = $('input[name=csrfmiddlewaretoken]').val();
-        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+        /* заголовки POST запроса для AJAX */
+        var csrf = document.querySelector('input[name=csrfmiddlewaretoken]');
+        var content_type = 'application/x-www-form-urlencoded; charset=UTF-8';
+        if (csrf) {
+            $httpProvider.defaults.headers.post['X-CSRFToken'] = csrf.getAttribute('value');
+            $httpProvider.defaults.headers.post['Content-Type'] = content_type;
+        }
     }])
-.controller('MainCtrl', ['$scope', function ($scope) {
-
-}])
 .controller('RegisterCtrl', ['$scope', '$http', function ($scope, $http) {
 
-    /* поля формы регистрации */
-    $scope.fields = ['username', 'email', 'password1', 'password2'];
+    $scope.form = {
+        /* поля формы регистрации */
+        fields: ['username', 'email', 'password1', 'password2'],
 
-    $scope.ajax = {
-        /* привязываем лоудер к кнопке регистрации */
-        btn: Ladda.create(document.querySelector('#reg_btn')),
+        ajax: {
+            /* привязываем лоудер к кнопке регистрации */
+            btn: Ladda.create(document.querySelector('#reg_btn')),
 
-        /* начало ajax запроса */
-        start: function () {
-            /* делаю форму недоступной для редактирования */
-            $scope.loading = true;
-            this.btn.start();
-            /* скрываю все прошлые ошибки */
-            $scope.form_errors.hide();
+            /* начало ajax запроса */
+            start: function () {
+                /* делаю форму недоступной для редактирования */
+                $scope.loading = true;
+                this.btn.start();
+                /* скрываю все прошлые ошибки */
+                $scope.form.errors.hide();
+            },
+            /* конец ajax запроса */
+            finish: function () {
+                $scope.loading = false;
+                this.btn.stop();
+            }
         },
-        /* конец ajax запроса */
-        finish: function () {
-            $scope.loading = false;
-            this.btn.stop();
-        }
-    };
-
-    /* объект для хранения ошибок формы */
-    $scope.form_errors = {
-        show: function (errors) {
-            /* Выводит ошибки которые пришли с сервера после сабмита */
-            var self = this;
-            _.each(errors, function (val, key) {
-                self[key] = val[0];
-            });
-        },
-        hide: function () {
-            /* очистка ошибок формы */
-            var self = this;
-            _.each($scope.fields, function (key) {
-                self[key] = false;
-            });
-            self['__all__'] = false;
+        errors: {
+            show: function (errors) {
+                /* Выводит ошибки которые пришли с сервера после сабмита */
+                var self = this;
+                _.each(errors, function (val, key) {
+                    self[key] = val[0];
+                });
+            },
+            hide: function () {
+                /* очистка ошибок формы */
+                var self = this;
+                _.each($scope.form.fields, function (key) {
+                    self[key] = false;
+                });
+                self['__all__'] = false;
+            }
         }
     };
 
@@ -64,13 +65,13 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
         if (url && $scope.user) {
 
             /* если форма не валидна она не сабмитится */
-            if ($scope.reg_form.$invalid) return false;
+            // if ($scope.reg_form.$invalid) return false;
 
             /* показываю лоудер */
-            $scope.ajax.start();
+            $scope.form.ajax.start();
 
             var post_params = {};
-            _.each($scope.fields, function (i) {
+            _.each($scope.form.fields, function (i) {
                 post_params[i] = $('[name="' + i + '"]').val();
             });
 
@@ -90,62 +91,95 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                     }
                 } else {
                     // если сервер вернул ошибки формы, то отображаю их
-                    $scope.form_errors.show(data.errors);
+                    $scope.form.errors.show(data.errors);
                 }
             }).error(function (data, status, headers, config) {
                 $scope.message = 'Сервер временно не отвечает, попробуйте ещё раз чуть позже.';
                 $scope.ajax_error = true;
             }).then(function () {
                 /* скрываю лоудер */
-                $scope.ajax.finish();
+                $scope.form.ajax.finish();
             });
         }
     };
 }])
 .controller('LoginCtrl', ['$scope', '$http', function ($scope, $http) {
 
-    /* привязываем лоудер к кнопке аутентификации */
-    $scope.btn = Ladda.create(document.querySelector('#login_btn'));
+    $scope.form = {
+        /* поля формы регистрации */
+        fields: ['username', 'password'],
 
-    // начало ajax запроса
-    $scope.ajax_start = function () {
-        $scope.loading = true;
-        $scope.btn.start();
-    };
-    // конец ajax запроса
-    $scope.ajax_finish = function () {
-        $scope.loading = false;
-        $scope.btn.stop();
+        ajax: {
+            /* привязываем лоудер к кнопке регистрации */
+            btn: Ladda.create(document.querySelector('#login_btn')),
+
+            /* начало ajax запроса */
+            start: function () {
+                /* делаю форму недоступной для редактирования */
+                $scope.loading = true;
+                this.btn.start();
+                /* скрываю все прошлые ошибки */
+                $scope.form.errors.hide();
+            },
+            /* конец ajax запроса */
+            finish: function () {
+                $scope.loading = false;
+                this.btn.stop();
+            }
+        },
+        errors: {
+            show: function (errors) {
+                /* Выводит ошибки которые пришли с сервера после сабмита */
+                var self = this;
+                _.each(errors, function (val, key) {
+                    self[key] = val[0];
+                });
+            },
+            hide: function () {
+                /* очистка ошибок формы */
+                var self = this;
+                _.each($scope.form.fields, function (key) {
+                    self[key] = false;
+                });
+                self['__all__'] = false;
+            }
+        }
     };
 
     /* сабмит формы регистрации */
     $scope.submit = function (url) {
 
-        /* если указан адрес для аутентификации и форма не пустая */
+        /* если указан адрес для регистрации и форма не пустая */
         if (url && $scope.user) {
 
             /* если форма не валидна она не сабмитится */
             if ($scope.login_form.$invalid) return false;
 
             /* показываю лоудер */
-            $scope.ajax_start();
+            $scope.form.ajax.start();
+
+            var post_params = {};
+            _.each($scope.form.fields, function (i) {
+                post_params[i] = $('[name="' + i + '"]').val();
+            });
 
             $http.post(
                 url,
-                $.param($scope.user)
+                $.param(post_params)
             ).success(function (data, status, headers, config) {
                 if (data.success) {
                     /* если все хорошо, редирект на страницу профиля */
                     window.location.href = data.next;
                 } else {
-                    console.log(data.errors);
+                    /* если сервер вернул ошибки формы, то отображаю их */
+                    $scope.form.errors.show(data.errors);
                 }
             }).error(function (data, status, headers, config) {
                 $scope.message = 'Сервер временно не отвечает, попробуйте ещё раз чуть позже.';
                 $scope.ajax_error = true;
             }).then(function () {
                 /* скрываю лоудер */
-                $scope.ajax_finish();
+                $scope.form.ajax.finish();
             });
         }
     };
@@ -160,7 +194,7 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
             /* слежу за появлением ошибки в объекте form_errors
              относящейся к конкретному полю.
               Если оно не пустое выставляю валидатор в false */
-            scope.$watch('form_errors.' + attrs.name, function (newVal, oldVal) {
+            scope.$watch('form.errors.' + attrs.name, function (newVal, oldVal) {
 
                 if (newVal) {
                     ctrl.$setValidity('servererror', false);
@@ -223,7 +257,6 @@ var App = angular.module('App', ['ngRoute'], function ($interpolateProvider) {
                     ctrl.$setValidity('equalpassword', true);
                     return viewValue;
                 }
-
             });
         }
     };

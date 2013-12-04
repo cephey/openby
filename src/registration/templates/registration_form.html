@@ -6,12 +6,12 @@
 {% block content %}
 <div class="container" ng-controller="RegisterCtrl">
 
-    <!-- Общие ошибки (не привязанные к конкретному поля) которые приходят с сервера после сабмита -->
-    <div class="row" ng-show="form_errors.__all__">
+    <!-- Общие ошибки (не привязанные к конкретному полю) которые приходят с сервера после сабмита -->
+    <div class="row" ng-show="form.errors.__all__">
         <div class="col-md-10 col-md-offset-1">
             <div class="alert alert-dismissable alert-danger">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                <span>[% form_errors.__all__ %]</span>
+                <span>[% form.errors.__all__ %]</span>
             </div>
         </div>
     </div>
@@ -20,10 +20,10 @@
     <div class="row">
 
         <div class="col-md-4 col-md-offset-4" ng-show="!message">
-            <div class="panel" ng-class="{'panel-primary': !loading, 'panel-default': loading}">
+            <div class="panel panel-primary">
 
                 <div class="panel-heading">
-                    <h3 class="panel-title" ng-class="{disabled_title: loading}">Регистрация</h3>
+                    <h3 class="panel-title">Регистрация</h3>
                 </div>
 
                 <div class="panel-body">
@@ -33,7 +33,7 @@
                             <div class="form-group relative" ng-form="for_username">
                                 <input type="text" ng-model="user.username" name="username" ng-maxlength="30" ng-pattern="/^[a-zA-z -]+$/" class="form-control" autofocus required server-error placeholder="Имя" />
                                 <ul class="field_error" ng-show="for_username.$dirty && for_username.$invalid">
-                                    <li ng-show="for_username.$error.servererror">[% form_errors.username %]</li>
+                                    <li ng-show="for_username.$error.servererror">[% form.errors.username %]</li>
                                     <li ng-show="for_username.$error.required">Обязательное поле</li>
                                     <li ng-show="for_username.$error.pattern">Допускаются только латинские буквы, цифры и символы @ . + - _</li>
                                     <li ng-show="for_username.$error.maxlength">Не более 30 символов</li>
@@ -43,7 +43,7 @@
                             <div class="form-group relative" ng-form="for_email">
                                 <input type="text" ng-model="user.email" name="email" ng-pattern="/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/" class="form-control" required server-error placeholder="E-mail" />
                                 <ul class="field_error" ng-show="for_email.$dirty && for_email.$invalid">
-                                    <li ng-show="for_email.$error.servererror">[% form_errors.email %]</li>
+                                    <li ng-show="for_email.$error.servererror">[% form.errors.email %]</li>
                                     <li ng-show="for_email.$error.required">Обязательное поле</li>
                                     <li ng-show="for_email.$error.pattern">Введите валидный адрес e-mail</li>
                                 </ul>
@@ -52,7 +52,7 @@
                             <div class="form-group relative" ng-form="for_password1">
                                 <input type="password" ng-model="user.password1" name="password1" ng-minlength="4" class="form-control" required server-error placeholder="Пароль" />
                                 <ul class="field_error" ng-show="for_password1.$dirty && for_password1.$invalid">
-                                    <li ng-show="for_password1.$error.servererror">[% form_errors.password1 %]</li>
+                                    <li ng-show="for_password1.$error.servererror">[% form.errors.password1 %]</li>
                                     <li ng-show="for_password1.$error.required">Обязательное поле</li>
                                     <li ng-show="for_password1.$error.minlength">Пароль не менее 4 символов</li>
                                 </ul>
@@ -61,7 +61,7 @@
                             <div class="form-group relative" ng-form="for_password2">
                                 <input type="password" ng-model="user.password2" name="password2" equal-password class="form-control" server-error placeholder="Пароль (ещё раз)" />
                                 <ul class="field_error" ng-show="for_password2.$dirty && for_password2.$invalid">
-                                    <li ng-show="for_password2.$error.servererror">[% form_errors.password2 %]</li>
+                                    <li ng-show="for_password2.$error.servererror">[% form.errors.password2 %]</li>
                                     <li ng-show="for_password2.$error.equalpassword">Пароли не совпадают</li>
                                 </ul>
                             </div>

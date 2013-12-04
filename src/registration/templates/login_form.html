@@ -4,14 +4,26 @@
 {% block title %}Авторизация{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row" ng-controller="LoginCtrl">
+<div class="container" ng-controller="LoginCtrl">
+
+    <!-- Общие ошибки (не привязанные к конкретному полю) которые приходят с сервера после сабмита -->
+    <div class="row" ng-show="form.errors.__all__">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="alert alert-dismissable alert-danger">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <span>[% form.errors.__all__ %]</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Форма аутентификации -->
+    <div class="row">
 
         <div class="col-md-4 col-md-offset-4" ng-show="!message">
-            <div class="panel" ng-class="{'panel-primary': !loading, 'panel-default': loading}">
+            <div class="panel panel-primary">
 
                 <div class="panel-heading">
-                    <h3 class="panel-title" ng-class="{disabled_title: loading}">Пожалуйста авторизуйтесь</h3>
+                    <h3 class="panel-title">Пожалуйста авторизуйтесь</h3>
                 </div>
 
                 <div class="panel-body">
@@ -19,15 +31,17 @@
                         <fieldset ng-disabled="loading">
 
                             <div class="form-group relative" ng-form="for_username">
-                                <input type="text" ng-model="user.username" name="username" class="form-control" autofocus required placeholder="Имя" />
+                                <input type="text" ng-model="user.username" name="username" class="form-control" autofocus required server-error placeholder="Имя" />
                                 <ul class="field_error" ng-show="for_username.$dirty && for_username.$invalid">
+                                    <li ng-show="for_username.$error.servererror">[% form.errors.username %]</li>
                                     <li ng-show="for_username.$error.required">Обязательное поле</li>
                                 </ul>
                             </div>
 
                             <div class="form-group relative" ng-form="for_password">
-                                <input type="password" ng-model="user.password" name="password" class="form-control" required placeholder="Пароль" />
+                                <input type="password" ng-model="user.password" name="password" class="form-control" required server-error placeholder="Пароль" />
                                 <ul class="field_error" ng-show="for_password.$dirty && for_password.$invalid">
+                                    <li ng-show="for_password.$error.servererror">[% form.errors.password %]</li>
                                     <li ng-show="for_password.$error.required">Обязательное поле</li>
                                 </ul>
                             </div>
@@ -46,6 +60,15 @@
 
             </div>
         </div>
+
+        <!-- Ответ сервера после сабмита -->
+        <div class="col-md-10 col-md-offset-1" ng-show="message">
+            <div class="alert alert-dismissable" ng-class="{'alert-success': ajax_success, 'alert-danger': ajax_error}">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <strong ng-show="ajax_success">Отлично!</strong><strong ng-show="ajax_error">Ошибка!</strong> [% message %]
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

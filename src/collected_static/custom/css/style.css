@@ -1,13 +1,10 @@
+@charset "UTF-8";
 /* цвет границы блока ошибок и текста в нем */
 body {
   padding-top: 70px; }
 
 .relative {
   position: relative; }
-
-/* неактивный заголовок panel-header */
-.disabled_title {
-  color: #bbbbbb; }
 
 /* блок ошибок поля формы */
 .field_error {
@@ -39,7 +36,8 @@ body {
 
 /* Всегда скрываю нетронутые field_error */
 /* Скрываю невалидные field_error когда на input focus */
-input.ng-pristine + .field_error {
+input.ng-pristine + .field_error,
+.ng-invalid:focus + .field_error {
   display: none; }
 
 .alert ul {
